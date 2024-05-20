@@ -5,7 +5,7 @@ group -> utsab.dev
 version -> v1alpha1
 
 The directory will look like
-pkg/apis/utsab.dev/v1alpha1 --> inside with there should be types.gos
+pkg/apis/utsab.dev/v1alpha1 --> inside with there should be types.go
 
 create main.go in the outside directory
 
