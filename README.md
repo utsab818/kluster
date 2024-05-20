@@ -2,7 +2,7 @@ Create a digital ocean kubernetes cluster using operator.
 
 type name -> Kluster
 group -> utsab.dev
-version -> v1aplha1
+version -> v1alpha1
 
 The directory will look like
 pkg/apis/utsab.dev/v1alpha1 --> inside with there should be types.gos
