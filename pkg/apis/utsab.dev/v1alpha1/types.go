@@ -13,7 +13,7 @@ type Kluster struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec KlusterSpec `json:"spec,omitempty"`
+	Spec   KlusterSpec   `json:"spec,omitempty"`
 	Status KlusterStatus `json:"status,omitempty"`
 }
 
@@ -26,9 +26,10 @@ type KlusterStatus struct {
 // this specifies all the fields required as input to your operator
 // for the digitalocean to create k8s cluster, required fields must be specified as per documentation.
 type KlusterSpec struct {
-	Name    string `json:"name,omitempty"`
-	Region  string `json:"region,omitempty"`
-	Version string `json:"version,omitempty"`
+	Name        string `json:"name,omitempty"`
+	Region      string `json:"region,omitempty"`
+	Version     string `json:"version,omitempty"`
+	TokenSecret string `json:"tokenSecret,omitempty"`
 
 	NodePools []NodePool `json:"nodePools,omitempty"`
 }
