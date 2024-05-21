@@ -42,7 +42,7 @@ type NodePool struct {
 // This should also be registered as addknownTypes in register.go file
 type KlusterList struct {
 	metav1.TypeMeta   `json:",inline"`
-	metav1.ObjectMeta `json:"metadata,omitempty"`
+	metav1.ListMeta `json:"metadata,omitempty"`
 
 	Items []Kluster `json:"items,omitempty"`
 }
