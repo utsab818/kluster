@@ -33,4 +33,5 @@ CRD should be generated, so that kubernetes can access the struct.
 
 // controller
 create folder as controller inside pkg folder
-create a file kluster.goss
+create a file kluster.go
+

@@ -1,0 +1,28 @@
+1. git clone --branch=release-1.26 <clone-code-generator>
+2. use execDir code
+3. Add
+	func (kl *KlusterList) DeepCopyObject() runtime.Object {
+    if kl == nil {
+        return nil
+    }
+    out := new(KlusterList)
+    kl.DeepCopyInto(out)
+    return out
+}
+
+This to the zz_generated_deepcopy if error in KlusterList
+
+
+// no need 
+// code will build up
+4. If internalclientset error
+remove internalclientset from the informers
+and add internalclientset "github.com/utsab818/kluster/pkg/client/clientset/versioned"
+
+update the unsolved error with UtsabV1alpha1.
+
+Solved.
+
+
+For controller-gen
+controller-gen paths=github.com/utsab818/kluster/pkg/apis/utsab.dev/v1alpha1 crd output:crd:artifacts:config=manifests
