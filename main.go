@@ -1,14 +1,14 @@
 package main
 
 import (
-	"context"
 	"flag"
-	"fmt"
 	"log"
 	"path/filepath"
+	"time"
 
 	klient "github.com/utsab818/kluster/pkg/client/clientset/versioned"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	kInfFac "github.com/utsab818/kluster/pkg/client/informers/internalversion"
+	"github.com/utsab818/kluster/pkg/controller"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/util/homedir"
@@ -42,10 +42,20 @@ func main() {
 
 	// fmt.Println(klientset)
 
-	klusters, err := klientset.UtsabV1alpha1().Klusters("").List(context.Background(), metav1.ListOptions{})
-	if err != nil {
-		log.Printf("listing klusters %s\n", err.Error())
-	}
+	// klusters, err := klientset.UtsabV1alpha1().Klusters("").List(context.Background(), metav1.ListOptions{})
+	// if err != nil {
+	// 	log.Printf("listing klusters %s\n", err.Error())
+	// }
 
-	fmt.Printf("length of kluster is %d and name is %s\n", len(klusters.Items), klusters.Items[0].Name)
+	// fmt.Printf("length of kluster is %d and name is %s\n", len(klusters.Items), klusters.Items[0].Name)
+
+	infoFactory := kInfFac.NewSharedInformerFactory(klientset, 20*time.Minute)
+	ch := make(chan struct{})
+	c := controller.NewController(klientset, infoFactory.Utsab().InternalVersion().Klusters())
+
+	//start informerfactory
+	infoFactory.Start(ch)
+	if err := c.Run(ch); err != nil {
+		log.Printf("error running controller %s\n", err.Error())
+	}
 }

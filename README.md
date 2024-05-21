@@ -29,3 +29,8 @@ Even though the struct is registered in Kubernetes,
 CRD should be generated, so that kubernetes can access the struct.
 --> use controller-gen
 (Registering and creating CRD should go in parallel)
+
+
+// controller
+create folder as controller inside pkg folder
+create a file kluster.goss

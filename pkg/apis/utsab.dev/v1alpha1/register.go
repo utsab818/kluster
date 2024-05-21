@@ -6,7 +6,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
-// SchemeGroupVersion of the struct should be specified
+// SchemeGroupVersion is group version used to register these objects
 var SchemeGroupVersion = schema.GroupVersion{
 	Group:   "utsab.dev",
 	Version: "v1alpha1",
@@ -17,6 +17,10 @@ var (
 	SchemeBuilder runtime.SchemeBuilder
 	AddToScheme   = SchemeBuilder.AddToScheme
 )
+
+func Resource(resource string) schema.GroupResource {
+	return SchemeGroupVersion.WithResource(resource).GroupResource()
+}
 
 // The init function calls itself at first which registers the function addKnownTypes
 func init() {
