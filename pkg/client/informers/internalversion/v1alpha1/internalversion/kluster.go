@@ -29,7 +29,8 @@ import (
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	watch "k8s.io/apimachinery/pkg/watch"
 	cache "k8s.io/client-go/tools/cache"
-	internalclientset "k8s.io/kubernetes/pkg/client/clientset_generated/internalclientset"
+	// internalclientset "k8s.io/kubernetes/pkg/client/clientset_generated/internalclientset"
+	internalclientset "github.com/utsab818/kluster/pkg/client/clientset/versioned"
 )
 
 // KlusterInformer provides access to a shared informer and lister for
@@ -62,13 +63,13 @@ func NewFilteredKlusterInformer(client internalclientset.Interface, namespace st
 				if tweakListOptions != nil {
 					tweakListOptions(&options)
 				}
-				return client.Utsab().Klusters(namespace).List(context.TODO(), options)
+				return client.UtsabV1alpha1().Klusters(namespace).List(context.TODO(), options)
 			},
 			WatchFunc: func(options v1.ListOptions) (watch.Interface, error) {
 				if tweakListOptions != nil {
 					tweakListOptions(&options)
 				}
-				return client.Utsab().Klusters(namespace).Watch(context.TODO(), options)
+				return client.UtsabV1alpha1().Klusters(namespace).Watch(context.TODO(), options)
 			},
 		},
 		&v1alpha1.Kluster{},

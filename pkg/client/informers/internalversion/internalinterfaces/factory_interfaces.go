@@ -24,7 +24,8 @@ import (
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	cache "k8s.io/client-go/tools/cache"
-	internalclientset "k8s.io/kubernetes/pkg/client/clientset_generated/internalclientset"
+	// internalclientset "k8s.io/kubernetes/pkg/client/clientset_generated/internalclientset"
+	internalclientset "github.com/utsab818/kluster/pkg/client/clientset/versioned"
 )
 
 // NewInformerFunc takes internalclientset.Interface and time.Duration to return a SharedIndexInformer.
