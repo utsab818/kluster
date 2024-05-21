@@ -13,8 +13,8 @@ type Kluster struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec KlusterSpec `json:"spec,omitempty"`
-	Status klusterStatus `json:"status,omitempty"`
+	Spec   KlusterSpec   `json:"spec,omitempty"`
+	Status KlusterStatus `json:"status,omitempty"`
 }
 
 type KlusterStatus struct {
@@ -48,7 +48,7 @@ type NodePool struct {
 
 // This should also be registered as addknownTypes in register.go file
 type KlusterList struct {
-	metav1.TypeMeta   `json:",inline"`
+	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
 
 	Items []Kluster `json:"items,omitempty"`
