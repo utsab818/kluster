@@ -35,7 +35,7 @@ func (in *KlusterStatus) DeepCopy() *KlusterStatus {
 	if in == nil {
 		return nil
 	}
-	out := new(KlsuterStatus)
+	out := new(KlusterStatus)
 	in.DeepCopyInto(out)
 	return out
 }

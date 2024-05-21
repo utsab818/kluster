@@ -14,7 +14,7 @@ type Kluster struct {
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
 	Spec KlusterSpec `json:"spec,omitempty"`
-	Status klusterStatus `json:"status,omitempty"`
+	Status KlusterStatus `json:"status,omitempty"`
 }
 
 type KlusterStatus struct {
