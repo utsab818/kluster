@@ -13,7 +13,7 @@ type Kluster struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   KlusterSpec   `json:"spec,omitempty"`
+	Spec KlusterSpec `json:"spec,omitempty"`
 	Status KlusterStatus `json:"status,omitempty"`
 }
 
