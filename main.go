@@ -9,6 +9,7 @@ import (
 	klient "github.com/utsab818/kluster/pkg/client/clientset/versioned"
 	kInfFac "github.com/utsab818/kluster/pkg/client/informers/internalversion"
 	"github.com/utsab818/kluster/pkg/controller"
+	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/util/homedir"
@@ -49,9 +50,14 @@ func main() {
 
 	// fmt.Printf("length of kluster is %d and name is %s\n", len(klusters.Items), klusters.Items[0].Name)
 
+	client, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		log.Printf("getting std client %s\n", err.Error())
+	}
+
 	infoFactory := kInfFac.NewSharedInformerFactory(klientset, 20*time.Minute)
 	ch := make(chan struct{})
-	c := controller.NewController(klientset, infoFactory.Utsab().InternalVersion().Klusters())
+	c := controller.NewController(client, klientset, infoFactory.Utsab().InternalVersion().Klusters())
 
 	//start informerfactory
 	infoFactory.Start(ch)

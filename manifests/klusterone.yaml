@@ -4,6 +4,10 @@ metadata:
   name: kluster-0
 spec:
   name: kluster-0
-  region: "ap-south-1"
-  version: "1234"
-  tokenSecret: "dosecret"
+  region: "nyc1"
+  version: "1.14.1-do.4"
+  tokenSecret: "default/dosecret"
+  nodePools:
+    - count: 3
+      name: "frontend-pool"
+      size: "s-2vcpu-2gb"

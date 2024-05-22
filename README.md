@@ -35,3 +35,5 @@ CRD should be generated, so that kubernetes can access the struct.
 create folder as controller inside pkg folder
 create a file kluster.go
 
+call the digitalocean api using Spec
+create do->digitalocean folder under pkg and create a file 

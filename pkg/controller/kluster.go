@@ -7,12 +7,16 @@ import (
 	klientset "github.com/utsab818/kluster/pkg/client/clientset/versioned"
 	kinf "github.com/utsab818/kluster/pkg/client/informers/internalversion/v1alpha1/internalversion"
 	klister "github.com/utsab818/kluster/pkg/client/listers/v1alpha1/internalversion"
+	"github.com/utsab818/kluster/pkg/do"
 	"k8s.io/apimachinery/pkg/util/wait"
+	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/cache"
 	"k8s.io/client-go/util/workqueue"
 )
 
 type Controller struct {
+	client kubernetes.Interface
+
 	// clientset for custom resource kluster
 	klient klientset.Interface
 	// kluster cache has synced
@@ -23,8 +27,9 @@ type Controller struct {
 	wq workqueue.RateLimitingInterface
 }
 
-func NewController(klient klientset.Interface, klusterInformer kinf.KlusterInformer) *Controller {
+func NewController(client kubernetes.Interface, klient klientset.Interface, klusterInformer kinf.KlusterInformer) *Controller {
 	c := &Controller{
+		client:        client,
 		klient:        klient,
 		klusterSynced: klusterInformer.Informer().HasSynced,
 		kLister:       klusterInformer.Lister(),
@@ -87,6 +92,13 @@ func (c *Controller) processNextItem() bool {
 	}
 
 	log.Printf("kluster spec that we have is %+v\n", kluster.Spec)
+
+	clusterId, err := do.Create(c.client, kluster.Spec)
+	if err != nil {
+		log.Printf("error %s, creating the cluster", err.Error())
+	}
+	log.Printf("cluster if that we have is %s\n", clusterId)
+
 	return true
 }
 
