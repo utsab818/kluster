@@ -5,8 +5,10 @@ import (
 )
 
 // +genclient
-// +genclient:noStatus
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+// +kubebuilder:subresource:status
+// +kubebuilder:printcolumn:name="ClusterID",type=string,JSONPath=`.status.klusterID`
+// +kubebuilder:printcolumn:name="Progress",type=string,JSONPath=`.status.progress`
 
 // Kluster should contain typemeta, objectmeta and the spec
 type Kluster struct {

@@ -14,7 +14,14 @@ spec:
     singular: kluster
   scope: Namespaced
   versions:
-  - name: v1alpha1
+  - additionalPrinterColumns:
+    - jsonPath: .status.klusterID
+      name: ClusterID
+      type: string
+    - jsonPath: .status.progress
+      name: Progress
+      type: string
+    name: v1alpha1
     schema:
       openAPIV3Schema:
         description: Kluster should contain typemeta, objectmeta and the spec
@@ -75,3 +82,5 @@ spec:
         type: object
     served: true
     storage: true
+    subresources:
+      status: {}

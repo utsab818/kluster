@@ -30,7 +30,7 @@ func Create(c kubernetes.Interface, spec v1alpha1.KlusterSpec) (string, error) {
 				Size:  spec.NodePools[0].Size,
 				Name:  spec.NodePools[0].Name,
 				Count: spec.NodePools[0].Count,
-			},
+			},		
 		},
 	}
 
