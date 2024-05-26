@@ -5,6 +5,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/kanisterio/kanister/pkg/poll"
 	"github.com/utsab818/kluster/pkg/apis/utsab.dev/v1alpha1"
 	klientset "github.com/utsab818/kluster/pkg/client/clientset/versioned"
 	kinf "github.com/utsab818/kluster/pkg/client/informers/internalversion/v1alpha1/internalversion"
@@ -105,13 +106,50 @@ func (c *Controller) processNextItem() bool {
 	if err != nil {
 		log.Printf("error %s, updating status of the kluster %s\n", err.Error(), kluster.Name)
 	}
+
+	// wait for digital ocean kubernetes cluster to complete
+	// to update the progress from 'creating' to 'Running'
+	// query DO API to make sure cluster state is running
+	// you can do so manually but can use kanister poll package.
+	err = c.WaitForCluster(kluster.Spec, clusterID)
+	if err != nil {
+		log.Printf("error %, waiting for cluter to be in running state", err.Error())
+	}
+
+	// Now update the status
+	err = c.updateStatus(clusterID, "running", kluster)
+	if err != nil {
+		log.Printf("error %s, updating cluster status after waiting for cluster", err.Error())
+	}
+
 	return true
 }
 
+func (c *Controller) WaitForCluster(spec v1alpha1.KlusterSpec, clusterId string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)
+	defer cancel()
+	return poll.Wait(ctx, func(ctx context.Context) (bool, error) {
+		state, err := do.ClusterState(c.client, spec, clusterId)
+		if err != nil {
+			return false, err
+		}
+		if state == "running" {
+			return true, nil
+		}
+		return false, nil
+	})
+}
+
 func (c *Controller) updateStatus(id, progress string, kluster *v1alpha1.Kluster) error {
-	kluster.Status.KlusterID = id
-	kluster.Status.Progress = progress
-	_, err := c.klient.UtsabV1alpha1().Klusters(kluster.Namespace).UpdateStatus(context.Background(), kluster, metav1.UpdateOptions{})
+	// get the latest version of kluster
+	k, err := c.klient.UtsabV1alpha1().Klusters(kluster.Namespace).Get(context.Background(), kluster.Name, metav1.GetOptions{})
+	if err != nil {
+		return err
+	}
+
+	k.Status.KlusterID = id
+	k.Status.Progress = progress
+	_, err = c.klient.UtsabV1alpha1().Klusters(kluster.Namespace).UpdateStatus(context.Background(), k, metav1.UpdateOptions{})
 	return err
 }
 
