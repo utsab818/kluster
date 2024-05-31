@@ -30,6 +30,8 @@ func main() {
 	config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
 	if err != nil {
 		log.Printf("Building config from flags failed, %s, trying to build inclusterconfig", err.Error())
+
+		// inclusterconfig simply uses the serviceaccount that is mounted inside a podsss
 		config, err = rest.InClusterConfig()
 		if err != nil {
 			log.Printf("error %s building inclusterconfig", err.Error())
