@@ -8,13 +8,19 @@ import (
 	"github.com/kanisterio/kanister/pkg/poll"
 	"github.com/utsab818/kluster/pkg/apis/utsab.dev/v1alpha1"
 	klientset "github.com/utsab818/kluster/pkg/client/clientset/versioned"
+	customscheme "github.com/utsab818/kluster/pkg/client/clientset/versioned/scheme"
 	kinf "github.com/utsab818/kluster/pkg/client/informers/internalversion/v1alpha1/internalversion"
 	klister "github.com/utsab818/kluster/pkg/client/listers/v1alpha1/internalversion"
 	"github.com/utsab818/kluster/pkg/do"
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/kubernetes/scheme"
+	typedcorev1 "k8s.io/client-go/kubernetes/typed/core/v1"
 	"k8s.io/client-go/tools/cache"
+	"k8s.io/client-go/tools/record"
 	"k8s.io/client-go/util/workqueue"
 )
 
@@ -29,15 +35,27 @@ type Controller struct {
 	kLister klister.KlusterLister
 	// queue
 	wq workqueue.RateLimitingInterface
+	// Get the event when describing the resource
+	recorder record.EventRecorder
 }
 
 func NewController(client kubernetes.Interface, klient klientset.Interface, klusterInformer kinf.KlusterInformer) *Controller {
+	runtime.Must(customscheme.AddToScheme(scheme.Scheme))
+
+	eveBroadCaster := record.NewBroadcaster()
+	eveBroadCaster.StartStructuredLogging(0)
+	eveBroadCaster.StartRecordingToSink(&typedcorev1.EventSinkImpl{
+		Interface: client.CoreV1().Events(""),
+	})
+	recorder := eveBroadCaster.NewRecorder(scheme.Scheme, corev1.EventSource{Component: "Kluster"})
+
 	c := &Controller{
 		client:        client,
 		klient:        klient,
 		klusterSynced: klusterInformer.Informer().HasSynced,
 		kLister:       klusterInformer.Lister(),
-		wq:            workqueue.NewNamedRateLimitingQueue(workqueue.DefaultControllerRateLimiter(), "kluster"),
+		wq:            workqueue.NewNamedRateLimitingQueue(workqueue.DefaultControllerRateLimiter(), "Kluster"),
+		recorder:      recorder,
 	}
 
 	klusterInformer.Informer().AddEventHandler(
@@ -101,6 +119,9 @@ func (c *Controller) processNextItem() bool {
 	if err != nil {
 		log.Printf("error %s, creating the cluster", err.Error())
 	}
+
+	c.recorder.Event(kluster, corev1.EventTypeNormal, "ClusterCreation", "DO API was called to create the cluster")
+
 	log.Printf("cluster id that we have is %s\n", clusterID)
 	err = c.updateStatus(clusterID, "creating", kluster)
 	if err != nil {
@@ -113,7 +134,7 @@ func (c *Controller) processNextItem() bool {
 	// you can do so manually but can use kanister poll package.
 	err = c.WaitForCluster(kluster.Spec, clusterID)
 	if err != nil {
-		log.Printf("error %, waiting for cluter to be in running state", err.Error())
+		log.Printf("error %s, waiting for cluster to be in running state", err.Error())
 	}
 
 	// Now update the status
@@ -121,6 +142,8 @@ func (c *Controller) processNextItem() bool {
 	if err != nil {
 		log.Printf("error %s, updating cluster status after waiting for cluster", err.Error())
 	}
+
+	c.recorder.Event(kluster, corev1.EventTypeNormal, "ClusterCreationCompleted", "DO Cluster creation was complete")
 
 	return true
 }
